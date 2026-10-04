@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Todo — test Wasmer</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #f4f5f7; margin: 0; padding: 2rem 1rem; color: #1f2937; }
+    main { max-width: 560px; margin: 0 auto; background: #fff; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+    h1 { margin-top: 0; }
+    form.add { display: flex; gap: .5rem; margin-bottom: 1.2rem; }
+    input[type=text] { flex: 1; padding: .6rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; }
+    button { padding: .6rem .9rem; border: 0; border-radius: 8px; background: #4f46e5; color: #fff; cursor: pointer; font-size: .95rem; }
+    button.ghost { background: #e5e7eb; color: #374151; }
+    button.danger { background: #ef4444; }
+    ul { list-style: none; padding: 0; margin: 0; }
+    li { display: flex; align-items: center; gap: .5rem; padding: .6rem 0; border-bottom: 1px solid #eee; }
+    li span { flex: 1; }
+    li.done span { text-decoration: line-through; color: #9ca3af; }
+    li form { margin: 0; }
+    .empty { color: #6b7280; text-align: center; padding: 1rem 0; }
+    footer { margin-top: 1rem; font-size: .8rem; color: #6b7280; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>📝 Ma todo-list</h1>
+
+  <form class="add" method="post">
+    {% csrf_token %}
+    <input type="text" name="title" placeholder="Nouvelle tâche…" maxlength="200" required autofocus>
+    <button type="submit">Ajouter</button>
+  </form>
+
+  <ul>
+    {% for task in tasks %}
+      <li class="{% if task.done %}done{% endif %}">
+        <span>{{ task.title }}</span>
+        <form method="post" action="{% url 'toggle' task.pk %}">{% csrf_token %}
+          <button class="ghost" type="submit">{% if task.done %}Rouvrir{% else %}Terminer{% endif %}</button>
+        </form>
+        <form method="post" action="{% url 'delete' task.pk %}">{% csrf_token %}
+          <button class="danger" type="submit">✕</button>
+        </form>
+      </li>
+    {% empty %}
+      <li class="empty">Aucune tâche pour le moment.</li>
+    {% endfor %}
+  </ul>
+
+  <footer>Diagnostic : <a href="{% url 'health' %}">/health/</a> · <a href="/admin/">/admin/</a></footer>
+</main>
+</body>
+</html>
